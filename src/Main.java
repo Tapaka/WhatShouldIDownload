@@ -34,14 +34,51 @@ public class Main {
         }
     }
 
+    private static Boolean episodeRegex = false;
+    private final static String[] regexList = new String[]{"(S[0-9]{2}E[0-9]{2})", "(Episode|episode)", "(S[0-9]{2}\\.E[0-9]{2})"};
+
+    private static void getSplitRegex(String splitString, Integer currentIndex){
+        if(episodeRegex){
+            seasonEpisode = splitString;
+            foundSplitRequirement = true;
+        }else{
+            for(String regex : regexList){
+                if(splitString.matches(regex)){
+                    if(regex.equals(regexList[1])){
+                        episodeRegex = true;
+                    }else{
+                        seasonEpisode = splitString;
+                        foundSplitRequirement = true;
+                    }
+                    seasonSplit = currentIndex;
+                    break;
+                }
+            }
+        }
+
+    }
+
+    private static Boolean foundSplitRequirement = false;
+    private static String seasonEpisode = "";
+    private static Integer seasonSplit = 0;
+
+    private static void resetGlobalValues(){
+        foundSplitRequirement = false;
+        episodeRegex = false;
+        seasonEpisode = "";
+        seasonSplit = 0;
+    }
+
     private static void processFile(File file){
-        String[] splitString = file.getName().split("\\.");
-        Integer seasonSplit = 0;
-        String seasonEpisode = "";
+        resetGlobalValues();
+        String[] splitString = file.getName().split("\\.").length < 3 ? file.getName().split("\\s") : file.getName().split("\\.");
+        if(file.getName().contains("code")){
+            System.out.println("");
+        }
         for(int k = 0; k < splitString.length; k++){
-            if(splitString[k].matches("(S[0-9]{2}E[0-9]{2})")){
-                seasonEpisode = splitString[k];
-                seasonSplit = k;
+            if(!foundSplitRequirement) {
+                getSplitRegex(splitString[k], k);
+            }else{
                 break;
             }
         }
@@ -54,25 +91,29 @@ public class Main {
                 }
             }
         }
-        String showName = sb.toString();
-
+        String showName = sb.toString().toLowerCase();
+        if(showName.equals("code geass")){
+            System.out.printf("");
+        };
         Pattern p = Pattern.compile("\\d+");
         Matcher m = p.matcher(seasonEpisode);
-        Integer season = 0, episode = 0;
+        Integer season = 1, episode = 0;
         while(m.find()) {
-            if (season == 0) {
+            if (season == 0 && (seasonEpisode.matches(regexList[0]) || seasonEpisode.matches(regexList[2]))) {
                 season = Integer.valueOf(m.group());
             } else {
                 episode = Integer.valueOf(m.group());
             }
         }
 
-        if(!mapFileSeason.containsKey(showName.toLowerCase())){
-            mapFileSeason.put(sb.toString().toLowerCase(), new Integer[]{season, episode});
-        }else {
-            Integer[] latestSeasonEpisode = mapFileSeason.get(showName.toLowerCase());
-            if (season >= latestSeasonEpisode[0] && episode > latestSeasonEpisode[1]) {
-                mapFileSeason.put(showName.toLowerCase(), new Integer[]{season, episode});
+        if(episode != 0){
+            if(!mapFileSeason.containsKey(showName)){
+                mapFileSeason.put(sb.toString().toLowerCase(), new Integer[]{season, episode});
+            }else {
+                Integer[] latestSeasonEpisode = mapFileSeason.get(showName);
+                if (season >= latestSeasonEpisode[0] && episode > latestSeasonEpisode[1]) {
+                    mapFileSeason.put(showName, new Integer[]{season, episode});
+                }
             }
         }
     }
@@ -82,7 +123,7 @@ public class Main {
         if(String.valueOf(i).length() < 2){
             sb.append("0");
         }
-        sb.append(String.valueOf(i));
+        sb.append(i);
         return sb.toString();
     }
 }
