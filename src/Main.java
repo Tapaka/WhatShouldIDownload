@@ -90,9 +90,9 @@ public class Main {
             splitString = file.getName().substring(0, file.getName().indexOf('.')).split("\\s");
         }
 
-        for(int k = 0; k < splitString.length; k++){
+        for(int i = 0; i < splitString.length; i++){
             if(!foundSplitRequirement) {
-                getSplitRegex(splitString[k], k);
+                getSplitRegex(splitString[i], i);
             }else{
                 break;
             }
@@ -133,10 +133,10 @@ public class Main {
 
     private static String getShowName(String[] splitString){
         StringBuilder sb = new StringBuilder();
-        for(int l = 0; l < seasonSplit; l++){
-            if(!splitString[l].matches("([0-9]{4})")) {
-                sb.append(splitString[l]);
-                if (l < seasonSplit - 1) {
+        for(int i = 0; i < seasonSplit; i++){
+            if(!splitString[i].matches("([0-9]{4})")) {
+                sb.append(splitString[i]);
+                if (i < seasonSplit - 1) {
                     sb.append(" ");
                 }
             }
