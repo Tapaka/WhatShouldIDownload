@@ -19,6 +19,9 @@ public class Main {
         initializeGlobalValues();
     }
 
+    /**
+     * Initialize all the variables we're going to need.
+     */
     private static void initializeGlobalValues(){
         foundSplitRequirement = false;
         episodeRegex = false;
@@ -27,6 +30,11 @@ public class Main {
         season = 1;
         episode = 0;
     }
+
+    /**
+     * A main method
+     * @param args args
+     */
     public static void main(String[] args) {
         File folder = new File("F:\\TVShows");
         File[] listOfFiles = folder.listFiles();
@@ -38,6 +46,10 @@ public class Main {
         displayTvShows();
     }
 
+    /**
+     * Process a file if it's a file and go deeper if it's a folder
+     * @param file the file being processed
+     */
     private static void goDeeper(File file){
         if (file.isFile()) {
             processFile(file);
@@ -48,13 +60,20 @@ public class Main {
         }
     }
 
+    /**
+     * Prints out the list of shows with their matching current season/episode on the drive
+     */
     private static void displayTvShows(){
         Stream<Entry<String, Integer[]>> mapSorted = mapFileSeason.entrySet().stream().sorted(Entry.comparingByKey());
         mapSorted.forEach(x -> System.out.println(x.getKey() + " : S"+addZeros(x.getValue()[0])+"E"+addZeros(x.getValue()[1])));
     }
 
 
-
+    /**
+     * Determine which regex should be used to get the season episode number pair.
+     * @param splitString the splitted string containing the episode season combo and other stuff
+     * @param currentIndex the current index, so that we can know which element of the array contains the season episode combo
+     */
     private static void getSplitRegex(String splitString, Integer currentIndex){
         if(episodeRegex){
             seasonEpisode = splitString;
@@ -76,6 +95,11 @@ public class Main {
 
     }
 
+    /**
+     * Initialize all the global variables required, determine which split should be used (dot or space), determine which split should be used to get the season episode number combo
+     * get the showname, the episode season number combo from the regex and fill the map
+     * @param file the file currently being processed
+     */
     private static void processFile(File file){
         initializeGlobalValues();
         String[] splitOnDot = file.getName().split("\\.");
@@ -104,6 +128,9 @@ public class Main {
         setMap(episode, season, showName);
     }
 
+    /**
+     * Retrieve the season and episode from a specified string.
+     */
     private static void getSeasonEpisode(){
         Boolean setSeason = false;
         Pattern p = Pattern.compile("\\d+");
@@ -118,6 +145,12 @@ public class Main {
         }
     }
 
+    /**
+     * Fill the map with a showname and an association of a season number and an episode number
+     * @param episode the episode number of the file currently being processed
+     * @param season the season number of the file currently being processed
+     * @param showName the name of the show from the file currently being processed
+     */
     private static void setMap(Integer episode, Integer season, String showName){
         if(episode != 0){
             if(!mapFileSeason.containsKey(showName)){
@@ -131,6 +164,11 @@ public class Main {
         }
     }
 
+    /**
+     * Retrieve the showname from an array of string
+     * @param splitString the array of string containing the showname among other things
+     * @return the showname
+     */
     private static String getShowName(String[] splitString){
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < seasonSplit; i++){
@@ -144,6 +182,11 @@ public class Main {
         return sb.toString();
     }
 
+    /**
+     * Add a zero to display something like S01 or E01 instead of S1 or E1 since episode/season number are integers.
+     * @param i the season number or episode number on which to add a zero
+     * @return the season number or episode number with format "0X" if X < 10
+     */
     private static String addZeros(Integer i){
         StringBuilder sb = new StringBuilder();
         if(String.valueOf(i).length() < 2){
